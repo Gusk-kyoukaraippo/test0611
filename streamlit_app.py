@@ -60,11 +60,24 @@ class RAGSystem:
         """
         RAGシステムを初期化し、必要なコンポーネントをセットアップします。
         """
-        gemini_api_key = "GEMINI_API_KEY" # あなたのAPIキーに置き換えてください
-        openai_api_key = "OPENAI_API_KEY"
+        try:
+            openai_api_key = st.secrets["OPENAI_API_KEY"]
+            # LlamaIndex が環境変数として読み込むため、os.environ にも設定する
+            os.environ["OPENAI_API_KEY"] = openai_api_key 
+        except KeyError:
+            st.error("Streamlit secrets に 'OPENAI_API_KEY' が設定されていません。")
+            st.stop()
+
+        # Gemini APIキーの取得
+        try:
+            gemini_api_key = st.secrets["GEMINI_API_KEY"]
+            # LlamaIndex が環境変数として読み込むため、os.environ にも設定する
+            os.environ["GEMINI_API_KEY"] = gemini_api_key 
+        except KeyError:
+            st.error("Streamlit secrets に 'GEMINI_API_KEY' が設定されていません。")
+            st.stop()
         self.config["gemini_api_key"] = gemini_api_key
         self.config["openai_api_key"] = openai_api_key
-
 
         self.documents = self._load_documents_from_csv(self.config["csv_file_path"])
         
