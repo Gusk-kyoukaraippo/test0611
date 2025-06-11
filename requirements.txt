@@ -1,5 +1,5 @@
 llama_index.core
-llama_index.retrievers.bm25 import BM25Retriever
+llama_index.retrievers.bm25
 llama_index.core.retrievers
 llama_index.core.schema 
 llama_index.core 
