@@ -79,7 +79,7 @@ class RAGSystem:
         # --- OpenAI text-embedding-3-small を埋め込みモデルとして設定 ---
         # model_name='text-embedding-3-small' を指定します
         self.embed_model = OpenAIEmbedding(
-            api_key=self.config["openai_api_key"],
+            api_key=openai_api_key,
             model_name='text-embedding-3-small' 
         )
         # --- 埋め込みモデルをVectorStoreIndexに渡す ---
