@@ -6,6 +6,7 @@ from llama_index.core.retrievers import BaseRetriever
 from llama_index.core.schema import NodeWithScore
 from llama_index.core import get_response_synthesizer
 from llama_index.llms.google_genai import GoogleGenAI
+from llama_index.embeddings.openai import OpenAIEmbedding # ★ここをOpenAIEmbeddingに変更
 from typing import List, Dict, Any, Set
 import sys
 import os
@@ -51,6 +52,7 @@ class RAGSystem:
         self.bm25_retriever: BM25Retriever = None
         self.response_synthesizer: Any = None
         self.llm: GoogleGenAI = None
+        self.embed_model: OpenAIEmbedding = None # OpenAIEmbeddingを追加
 
         self._initialize_system()
 
@@ -59,7 +61,10 @@ class RAGSystem:
         RAGシステムを初期化し、必要なコンポーネントをセットアップします。
         """
         gemini_api_key = "GEMINI_API_KEY" # あなたのAPIキーに置き換えてください
+        openai_api_key = "OPENAI_API_KEY"
         self.config["gemini_api_key"] = gemini_api_key
+        self.config["openai_api_key"] = openai_api_key
+
 
         self.documents = self._load_documents_from_csv(self.config["csv_file_path"])
         
@@ -69,7 +74,19 @@ class RAGSystem:
             st.error("ドキュメントが読み込まれていないため、システム初期化を中止します。")
             st.stop()
             
-        vector_index = VectorStoreIndex.from_documents(self.documents)
+        
+
+        # --- OpenAI text-embedding-3-small を埋め込みモデルとして設定 ---
+        # model_name='text-embedding-3-small' を指定します
+        self.embed_model = OpenAIEmbedding(
+            api_key=self.config["openai_api_key"],
+            model_name='text-embedding-3-small' 
+        )
+        # --- 埋め込みモデルをVectorStoreIndexに渡す ---
+        vector_index = VectorStoreIndex.from_documents(
+            self.documents,
+            embed_model=self.embed_model # ここでOpenAIの埋め込みモデルを指定
+        )
         self.vector_retriever = vector_index.as_retriever(similarity_top_k=self.config["vector_top_k"])
 
         self.bm25_retriever = BM25Retriever.from_defaults(
