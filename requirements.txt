@@ -1,3 +1,4 @@
 llama-index
 llama-index-llms-google-genai
 llama-index-retrievers-bm25
+llama-index-embeddings-openai
